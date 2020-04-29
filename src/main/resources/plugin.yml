@@ -1,0 +1,20 @@
+name: RGThrowable
+main: cat.nyaa.rpgitems.throwable.ThrowableExtentionPlugin
+description: "RPGItems' Throwable extention"
+version: ${version}
+depend: [RPGItems,ProtocolLib]
+authors: [ReinWD]
+website: "https://github.com/NyaaCat/RPGItems-reloaded"
+database: false
+api-version: 1.13
+
+commands:
+  rpgitem-throwable:
+    description: RPGItems' Throwable extention
+    permission: rpgitem
+    permission-message: "You do not have the required permission: <permission>"
+    usage: "/<command> [SubCommand...] [Arguments...] or /<command> help"
+
+permissions:
+  rpgitem.throwable:
+    default: op

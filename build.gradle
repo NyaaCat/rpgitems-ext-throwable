@@ -1,0 +1,40 @@
+plugins {
+    id 'java'
+}
+
+group 'cat.nyaa'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+    maven {
+        name 'NyaaCat'
+        url 'https://ci.nyaacat.com/maven/'
+    }
+    maven {
+        name 'Spigot'
+        url 'https://hub.spigotmc.org/nexus/content/groups/public/'
+    }
+
+    maven { url "https://repo.dmulloy2.net/nexus/repository/public/" }
+    maven { name 'aikar';     url 'https://repo.aikar.co/content/groups/aikar/' }
+}
+
+
+String majorVersion = 1
+String minorVersion = 0
+String minecraftVersion = "1.15.1"
+String buildNumber = System.getenv("BUILD_NUMBER") == null ? "686936"             : System.getenv("BUILD_NUMBER")
+
+version = "$majorVersion.$minorVersion-$buildNumber"
+
+dependencies {
+    compileOnly('cat.nyaa:nyaacore:7.1-SNAPSHOT')
+    compileOnly('cat.nyaa:rpgitems:3.8-SNAPSHOT')
+    compileOnly("org.spigotmc:spigot-api:$minecraftVersion-R0.1-SNAPSHOT")
+    compileOnly group: "com.comphenix.protocol", name: "ProtocolLib", version: "4.5.0";
+
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}

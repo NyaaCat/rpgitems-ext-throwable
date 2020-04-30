@@ -1,8 +1,10 @@
 package cat.nyaa.rpgitems.throwable.impl;
 
+import cat.nyaa.nyaacore.utils.NmsUtils;
 import cat.nyaa.rpgitems.throwable.lib.wrapper.WrapperPlayServerEntityMetadata;
 import cat.nyaa.rpgitems.throwable.lib.wrapper.WrapperPlayServerSpawnEntity;
 import cat.nyaa.rpgitems.throwable.utils.PacketUtils;
+import cat.nyaa.rpgitems.throwable.utils.ProjectileRemoveTask;
 import cat.nyaa.rpgitems.throwable.utils.cast.CastUtils;
 import cat.nyaa.rpgitems.throwable.utils.cast.RangedDoubleValue;
 import cat.nyaa.rpgitems.throwable.utils.cast.RangedValueSerializer;
@@ -110,6 +112,12 @@ public class PowerThrowable extends BasePower{
     public int customModelData = -1;
     @Property
     public RenderMode projectileMode = RenderMode.ARROW;
+    @Property
+    public String nbt = "";
+
+    public String getNbt() {
+        return nbt;
+    }
 
     public int getCustomModelData() {
         return customModelData;
@@ -459,6 +467,12 @@ public class PowerThrowable extends BasePower{
             Events.registerRPGProjectile(getPower().getItem(), stack, player, source);
 
             Projectile projectile = spawnFakeArrow(source, v, speedFactor);
+
+            projectile.setShooter(player);
+            handleProjectile(v, projectile);
+            if (getNbt()!=null && !getNbt().equals("")){
+                NmsUtils.setEntityTag(projectile, getNbt());
+            }
             if (projectile instanceof AbstractArrow) {
                 ((AbstractArrow) projectile).setPickupStatus(AbstractArrow.PickupStatus.DISALLOWED);
                 if (getPierce()>0){
@@ -467,9 +481,6 @@ public class PowerThrowable extends BasePower{
                 projectile.addScoreboardTag("rgi_projectile");
                 getTags().stream().forEach(projectile::addScoreboardTag);
             }
-            projectile.setShooter(player);
-            handleProjectile(v, projectile);
-
         }
 
         ItemStack itemStack = null;
@@ -578,14 +589,17 @@ public class PowerThrowable extends BasePower{
                 Events.autoRemoveProjectile(projectile.getEntityId());
                 ((Arrow) projectile).setPickupStatus(Arrow.PickupStatus.DISALLOWED);
             }
-                (new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        projectile.remove();
-                        int entityId = projectile.getEntityId();
-                        ttlReached.computeIfAbsent(entityId, integer -> new AtomicBoolean(true)).set(true);
-                    }
-                }).runTaskLater(RPGItems.plugin, getTtl());
+            ProjectileRemoveTask.registerFiredArrow(projectile.getEntityId());
+            (new BukkitRunnable() {
+                @Override
+                public void run() {
+                    projectile.remove();
+
+                    int entityId = projectile.getEntityId();
+                    ttlReached.computeIfAbsent(entityId, integer -> new AtomicBoolean(true)).set(true);
+                    ProjectileRemoveTask.submitRemoval(entityId);
+                }
+            }).runTaskLater(RPGItems.plugin, getTtl());
 
         }
 

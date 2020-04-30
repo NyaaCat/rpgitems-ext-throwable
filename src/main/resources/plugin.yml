@@ -1,6 +1,6 @@
 name: RGThrowable
 main: cat.nyaa.rpgitems.throwable.ThrowableExtentionPlugin
-description: "RPGItems' Throwable extention"
+description: "RPGItems' Throwable extension"
 version: ${version}
 depend: [RPGItems,ProtocolLib]
 authors: [ReinWD]

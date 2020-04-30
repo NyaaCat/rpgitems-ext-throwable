@@ -1,6 +1,6 @@
 package cat.nyaa.rpgitems.throwable.utils;
 
-import cat.nyaa.rpgitems.throwable.ThrowableExtentionPlugin;
+import cat.nyaa.rpgitems.throwable.ThrowableExtensionPlugin;
 import cat.nyaa.rpgitems.throwable.lib.wrapper.WrapperPlayServerEntityDestroy;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -20,7 +20,7 @@ public class ProjectileRemoveTask extends BukkitRunnable {
         stop();
         enabled = true;
         task = new ProjectileRemoveTask();
-        task.runTaskTimer(ThrowableExtentionPlugin.plugin, 0, interval);
+        task.runTaskTimer(ThrowableExtensionPlugin.plugin, 0, interval);
     }
 
     private static void stop() {

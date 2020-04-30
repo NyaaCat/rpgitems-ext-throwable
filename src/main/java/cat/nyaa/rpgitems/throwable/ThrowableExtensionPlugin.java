@@ -3,8 +3,8 @@ package cat.nyaa.rpgitems.throwable;
 import org.bukkit.plugin.java.JavaPlugin;
 import think.rpgitems.power.PowerManager;
 
-public class ThrowableExtentionPlugin extends JavaPlugin {
-    public static ThrowableExtentionPlugin plugin;
+public class ThrowableExtensionPlugin extends JavaPlugin {
+    public static ThrowableExtensionPlugin plugin;
     ExtEvents infExtEvent;
     Hijack hijack;
 

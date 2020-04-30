@@ -53,7 +53,7 @@ public final class Hijack {
     private PacketAdapter entityPacketAdapter;
 
     private void registPacketListener() {
-        entityPacketAdapter = new PacketAdapter(ThrowableExtentionPlugin.plugin, ListenerPriority.NORMAL, ENTITY_PACKETS) {
+        entityPacketAdapter = new PacketAdapter(ThrowableExtensionPlugin.plugin, ListenerPriority.NORMAL, ENTITY_PACKETS) {
             @Override
             public void onPacketSending(PacketEvent event) {
                 int entityID = event.getPacket().getIntegers().read(0);

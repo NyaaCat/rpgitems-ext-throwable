@@ -1,6 +1,6 @@
 package cat.nyaa.rpgitems.throwable.impl;
 
-import cat.nyaa.rpgitems.throwable.ThrowableExtentionPlugin;
+import cat.nyaa.rpgitems.throwable.ThrowableExtensionPlugin;
 import org.bukkit.NamespacedKey;
 import think.rpgitems.power.*;
 import think.rpgitems.power.trigger.Trigger;
@@ -33,7 +33,7 @@ public abstract class BasePower extends BasePropertyHolder implements Serializab
 
     @Override
     public NamespacedKey getNamespacedKey() {
-        return new NamespacedKey(ThrowableExtentionPlugin.plugin, getName());
+        return new NamespacedKey(ThrowableExtensionPlugin.plugin, getName());
     }
 
     @Override

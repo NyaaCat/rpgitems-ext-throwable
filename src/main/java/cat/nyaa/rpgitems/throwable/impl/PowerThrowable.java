@@ -35,6 +35,7 @@ import think.rpgitems.power.*;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static cat.nyaa.rpgitems.throwable.Hijack.*;
 import static com.comphenix.protocol.PacketType.Play.Server.SPAWN_ENTITY;
@@ -140,6 +141,13 @@ public class PowerThrowable extends BasePower{
 
     @Property
     public boolean castOff = false;
+
+    @Property
+    public int ttl = 80;
+
+    public int getTtl() {
+        return ttl;
+    }
 
     public double getInitialRotation() {
         return initialRotation;
@@ -466,6 +474,8 @@ public class PowerThrowable extends BasePower{
 
         ItemStack itemStack = null;
 
+        WeakHashMap<Integer, AtomicBoolean> ttlReached = new WeakHashMap<>();
+
         @SuppressWarnings("deprecation")
         private Projectile spawnFakeArrow(LivingEntity source, Vector v, float speedFactor) {
             if (itemStack == null || itemStack.getType() != getMaterial()){
@@ -494,16 +504,26 @@ public class PowerThrowable extends BasePower{
             WrapperPlayServerEntityMetadata metadata = getFakeMetadata(entityId, orig);
 
             entitySpawnHandler.put(entityId, packetEvent -> {
-                        packetEvent.setPacket(spawnEntity.getHandle());
-                    }
+                if (isTtlReached(entityId)){
+                    packetEvent.setCancelled(true);
+                    return;
+                }
+                packetEvent.setPacket(spawnEntity.getHandle());
+            }
             );
             entityMetadataHandler.put(entityId, packetEvent -> {
-                    packetEvent.setPacket(metadata.getHandle());
-                    }
+                if (isTtlReached(entityId)){
+                    packetEvent.setCancelled(true);
+                    return;
+                }
+                packetEvent.setPacket(metadata.getHandle());
+            }
             );
 
-            protocolManager.broadcastServerPacket(spawnEntity.getHandle());
-            protocolManager.broadcastServerPacket(metadata.getHandle());
+            int viewDistance = Bukkit.getViewDistance();
+            int radius = viewDistance * 16 - 1;
+            protocolManager.broadcastServerPacket(spawnEntity.getHandle(), projectile.getLocation(), radius);
+            protocolManager.broadcastServerPacket(metadata.getHandle(), projectile.getLocation(), radius);
              return projectile;
         }
 
@@ -558,14 +578,20 @@ public class PowerThrowable extends BasePower{
                 Events.autoRemoveProjectile(projectile.getEntityId());
                 ((Arrow) projectile).setPickupStatus(Arrow.PickupStatus.DISALLOWED);
             }
-            if (!isGravity()) {
                 (new BukkitRunnable() {
                     @Override
                     public void run() {
                         projectile.remove();
+                        int entityId = projectile.getEntityId();
+                        ttlReached.computeIfAbsent(entityId, integer -> new AtomicBoolean(true)).set(true);
                     }
-                }).runTaskLater(RPGItems.plugin, 80);
-            }
+                }).runTaskLater(RPGItems.plugin, getTtl());
+
+        }
+
+        private boolean isTtlReached(int id){
+            ttlReached.computeIfAbsent(id, integer -> new AtomicBoolean(false));
+            return ttlReached.get(id).get();
         }
 
         @Override

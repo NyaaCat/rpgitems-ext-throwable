@@ -43,7 +43,20 @@ import static cat.nyaa.rpgitems.throwable.Hijack.*;
 import static com.comphenix.protocol.PacketType.Play.Server.SPAWN_ENTITY;
 import static think.rpgitems.power.Utils.checkCooldown;
 
-@Meta(defaultTrigger = "RIGHT_CLICK", generalInterface = PowerPlain.class, implClass = PowerThrowable.Impl.class)
+@Meta(defaultTrigger = "RIGHT_CLICK", generalInterface = {
+        PowerLeftClick.class,
+        PowerRightClick.class,
+        PowerPlain.class,
+        PowerSneak.class,
+        PowerLivingEntity.class,
+        PowerSprint.class,
+        PowerHurt.class,
+        PowerHit.class,
+        PowerHitTaken.class,
+        PowerBowShoot.class,
+        PowerBeamHit.class,
+        PowerLocation.class
+}, implClass = PowerThrowable.Impl.class)
 public class PowerThrowable extends BasePower{
     /**
      * Z_axis.

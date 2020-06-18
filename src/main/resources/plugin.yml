@@ -1,5 +1,5 @@
 name: RGThrowable
-main: cat.nyaa.rpgitems.throwable.ThrowableExtentionPlugin
+main: cat.nyaa.rpgitems.throwable.ThrowableExtensionPlugin
 description: "RPGItems' Throwable extension"
 version: ${version}
 depend: [RPGItems,ProtocolLib]
@@ -10,7 +10,7 @@ api-version: 1.13
 
 commands:
   rpgitem-throwable:
-    description: RPGItems' Throwable extention
+    description: RPGItems' Throwable extension
     permission: rpgitem
     permission-message: "You do not have the required permission: <permission>"
     usage: "/<command> [SubCommand...] [Arguments...] or /<command> help"

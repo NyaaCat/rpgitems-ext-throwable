@@ -383,7 +383,7 @@ public class PowerThrowable extends BasePower{
             if (getFiringLocation().equals(FiringLocation.TARGET)) {
                 castLocation = CastUtils.rayTrace(player, player.getEyeLocation(), player.getEyeLocation().getDirection(), getFiringRange());
             }
-            fire(player, stack, castLocation, speedFactor);
+            fire(player, player, stack, castLocation, speedFactor);
             UUID uuid = player.getUniqueId();
             if (getBurstCount() > 1) {
                 Integer prev = burstTask.getIfPresent(uuid);
@@ -403,7 +403,7 @@ public class PowerThrowable extends BasePower{
                             }
                             burstTask.put(uuid, this.getTaskId());
                             if (count-- > 0 && player.isOnline()) {
-                                fire(player, stack, castLocation1, speedFactor);
+                                fire(player, player, stack, castLocation1, speedFactor);
                                 return;
                             }
                         }
@@ -441,10 +441,8 @@ public class PowerThrowable extends BasePower{
          * tags
          * CustomModel
          */
-        private void fire(Player player, ItemStack stack, CastUtils.CastLocation castLocation, float speedFactor) {
-
+        private void fire(Player player, LivingEntity source, ItemStack stack, CastUtils.CastLocation castLocation, float speedFactor) {
             for (int i = 0; i < (isCone() ? getAmount() : 1); i++) {
-                LivingEntity source = player;
                 RoundedConeInfo roundedConeInfo = generateConeInfo(isCone() ? getRange() : 0, getFiringR(), getFiringTheta(), getFiringPhi(), getInitialRotation());
                 if (getFiringLocation().equals(FiringLocation.TARGET) && castLocation != null) {
                     Location targetLocation = castLocation.getTargetLocation();
@@ -662,7 +660,7 @@ public class PowerThrowable extends BasePower{
             if (getFiringLocation().equals(FiringLocation.TARGET)) {
                 castLocation = CastUtils.rayTrace(player, player.getEyeLocation(), player.getEyeLocation().getDirection(), getFiringRange());
             }
-            fire(player, stack, castLocation, 1);
+            fire(player, entity, stack, castLocation, 1);
             UUID uuid = player.getUniqueId();
             if (getBurstCount() > 1) {
                 Integer prev = burstTask.getIfPresent(uuid);
@@ -682,7 +680,7 @@ public class PowerThrowable extends BasePower{
                             }
                             burstTask.put(uuid, this.getTaskId());
                             if (count-- > 0) {
-                                fire(player, stack, castLocation1, 1);
+                                fire(player, entity, stack, castLocation1, 1);
                                 return;
                             }
                         }

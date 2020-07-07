@@ -25,13 +25,13 @@ repositories {
 
 String majorVersion = 1
 String minorVersion = 0
-String minecraftVersion = "1.15.1"
+String minecraftVersion = "1.16.1"
 String buildNumber = System.getenv("BUILD_NUMBER") == null ? "686936"             : System.getenv("BUILD_NUMBER")
 
 version = "$majorVersion.$minorVersion-$buildNumber"
 
 dependencies {
-    compileOnly('cat.nyaa:nyaacore:7.1-SNAPSHOT')
+    compileOnly('cat.nyaa:nyaacore:7.2-SNAPSHOT')
     compileOnly('cat.nyaa:rpgitems:3.8-SNAPSHOT')
     compileOnly("org.spigotmc:spigot-api:$minecraftVersion-R0.1-SNAPSHOT")
     compileOnly group: "com.comphenix.protocol", name: "ProtocolLib", version: "4.5.0";

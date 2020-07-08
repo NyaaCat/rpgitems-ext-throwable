@@ -324,7 +324,7 @@ public class WrapperPlayServerSpawnEntity extends AbstractPacket {
 	 */
 	public void setType(String type) throws NoSuchFieldException, ClassNotFoundException, IllegalAccessException {
 		Field k = handle.getHandle().getClass().getDeclaredField("k");
-		Field item = Class.forName("net.minecraft.server.v1_15_R1.EntityTypes").getField(type);
+		Field item = Class.forName("net.minecraft.server.v1_16_R1.EntityTypes").getField(type);
 		Object o = item.get(null);
 		k.setAccessible(true);
 		k.set(handle.getHandle(), o);

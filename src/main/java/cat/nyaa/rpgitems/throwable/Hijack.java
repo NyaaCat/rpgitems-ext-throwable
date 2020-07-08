@@ -8,6 +8,7 @@ import com.comphenix.protocol.events.ListenerPriority;
 import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
+import com.comphenix.protocol.reflect.FieldAccessException;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
@@ -56,21 +57,28 @@ public final class Hijack {
         entityPacketAdapter = new PacketAdapter(ThrowableExtensionPlugin.plugin, ListenerPriority.NORMAL, ENTITY_PACKETS) {
             @Override
             public void onPacketSending(PacketEvent event) {
-                int entityID = event.getPacket().getIntegers().read(0);
-                if (isHijacked(SPAWN_ENTITY) && event.getPacketType() == SPAWN_ENTITY && entitySpawnCache.getIfPresent(entityID) == null) {
-                    WrapperPlayServerSpawnEntity spawnEntity = new WrapperPlayServerSpawnEntity(event.getPacket());
-                    entitySpawnCache.put(entityID, spawnEntity.getHandle().deepClone());
-                    event.setCancelled(true);
-                    return;
+                if (isHijacked(SPAWN_ENTITY) && event.getPacketType() == SPAWN_ENTITY) {
+                    int entityID = event.getPacket().getIntegers().read(0);
+                    if(entitySpawnCache.getIfPresent(entityID) == null){
+                        WrapperPlayServerSpawnEntity spawnEntity = new WrapperPlayServerSpawnEntity(event.getPacket());
+                        entitySpawnCache.put(entityID, spawnEntity.getHandle().deepClone());
+                        event.setCancelled(true);
+                        return;
+                    }
                 }
-                if (hiddenEntities.contains(entityID) || entitySpawnCache.getIfPresent(entityID) != null) {
-                    event.setCancelled(true);
-                }
-                if (entitySpawnHandler.containsKey(entityID) && event.getPacketType() == SPAWN_ENTITY) {
-                    entitySpawnHandler.get(entityID).accept(event);
-                }
-                if (entityMetadataHandler.containsKey(entityID) && event.getPacketType() == ENTITY_METADATA) {
-                    entityMetadataHandler.get(entityID).accept(event);
+                try {
+                    int entityID = event.getPacket().getIntegers().read(0);
+                    if (hiddenEntities.contains(entityID) || entitySpawnCache.getIfPresent(entityID) != null) {
+                        event.setCancelled(true);
+                    }
+                    if (entitySpawnHandler.containsKey(entityID) && event.getPacketType() == SPAWN_ENTITY) {
+                        entitySpawnHandler.get(entityID).accept(event);
+                    }
+                    if (entityMetadataHandler.containsKey(entityID) && event.getPacketType() == ENTITY_METADATA) {
+                        entityMetadataHandler.get(entityID).accept(event);
+                    }
+                }catch (FieldAccessException e){
+                    String message = e.getMessage();
                 }
             }
         };

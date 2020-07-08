@@ -29,12 +29,17 @@ String minecraftVersion = "1.16.1"
 String buildNumber = System.getenv("BUILD_NUMBER") == null ? "686936"             : System.getenv("BUILD_NUMBER")
 
 version = "$majorVersion.$minorVersion-$buildNumber"
+String localSpigotJar = "../nms_binaries/spigot-${minecraftVersion}.jar"
+String local115SpigotJar = "../nms_binaries/spigot-1.15.jar"
 
 dependencies {
     compileOnly('cat.nyaa:nyaacore:7.2-SNAPSHOT')
     compileOnly('cat.nyaa:rpgitems:3.8-SNAPSHOT')
     compileOnly("org.spigotmc:spigot-api:$minecraftVersion-R0.1-SNAPSHOT")
     compileOnly group: "com.comphenix.protocol", name: "ProtocolLib", version: "4.5.0";
+    print(localSpigotJar)
+    compileOnly(files(localSpigotJar))
+    compileOnly(files(local115SpigotJar))
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }

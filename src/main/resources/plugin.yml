@@ -2,7 +2,7 @@ name: RGThrowable
 main: cat.nyaa.rpgitems.throwable.ThrowableExtensionPlugin
 description: "RPGItems' Throwable extension"
 version: ${version}
-depend: [RPGItems,ProtocolLib]
+depend: [RPGItems,ProtocolLib,NyaaCore]
 authors: [ReinWD]
 website: "https://github.com/NyaaCat/RPGItems-reloaded"
 database: false

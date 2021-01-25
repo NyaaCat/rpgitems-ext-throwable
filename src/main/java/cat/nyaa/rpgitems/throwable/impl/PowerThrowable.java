@@ -118,7 +118,7 @@ public class PowerThrowable extends BasePower{
     @Property
     public int pierce = 0;
     @Property
-    public List<String> tags = new ArrayList<>();
+    public List<String> nbtTags = new ArrayList<>();
     @Property
     public Material material = Material.TORCH;
     @Property
@@ -202,8 +202,8 @@ public class PowerThrowable extends BasePower{
         return pierce;
     }
 
-    public List<String> getTags() {
-        return tags;
+    public List<String> getNbtTags() {
+        return nbtTags;
     }
 
     public Material getMaterial() {

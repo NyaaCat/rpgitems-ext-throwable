@@ -57,7 +57,7 @@ import static think.rpgitems.power.Utils.checkCooldown;
         PowerBeamHit.class,
         PowerLocation.class
 }, implClass = PowerThrowable.Impl.class)
-public class PowerThrowable extends BasePower{
+public class PowerThrowable extends BasePluginPower{
     /**
      * Z_axis.
      */

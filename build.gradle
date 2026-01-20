@@ -37,7 +37,10 @@ dependencies {
     compileOnly('cat.nyaa:nyaacore:9.10')
     compileOnly('cat.nyaa:rpgitems:3.34-SNAPSHOT')
     compileOnly("io.papermc.paper:paper-api:$minecraftVersion-R0.1-SNAPSHOT")
-    compileOnly group: "com.comphenix.protocol", name: "ProtocolLib", version: "5.1.0"
+    compileOnly group: "com.comphenix.protocol", name: "ProtocolLib", version: "5.3.0"
+
+    // EvalEx expression evaluator (legacy API compatible)
+    implementation 'com.udojava:EvalEx:2.7'
 
     testImplementation group: 'junit', name: 'junit', version: '4.13.2'
 }

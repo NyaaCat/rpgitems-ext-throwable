@@ -23,11 +23,11 @@ import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.injector.PacketConstructor;
-import com.comphenix.protocol.reflect.IntEnum;
+// IntEnum removed in newer ProtocolLib
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 
-import java.lang.reflect.Field;
 import java.util.UUID;
 
 public class WrapperPlayServerSpawnEntity extends AbstractPacket {
@@ -37,10 +37,11 @@ public class WrapperPlayServerSpawnEntity extends AbstractPacket {
 
 	/**
 	 * Represents the different object types.
-	 * 
+	 * Note: These are legacy values, modern Minecraft uses EntityType registry.
+	 *
 	 * @author Kristian
 	 */
-	public static class ObjectTypes extends IntEnum {
+	public static final class ObjectTypes {
 		public static final int BOAT = 1;
 		public static final int ITEM_STACK = 2;
 		public static final int AREA_EFFECT_CLOUD = 3;
@@ -67,19 +68,7 @@ public class WrapperPlayServerSpawnEntity extends AbstractPacket {
 		public static final int SPECTRAL_ARROW = 91;
 		public static final int DRAGON_FIREBALL = 93;
 
-		/**
-		 * The singleton instance. Can also be retrieved from the parent class.
-		 */
-		private static ObjectTypes INSTANCE = new ObjectTypes();
-
-		/**
-		 * Retrieve an instance of the object types enum.
-		 * 
-		 * @return Object type enum.
-		 */
-		public static ObjectTypes getInstance() {
-			return INSTANCE;
-		}
+		private ObjectTypes() {}
 	}
 
 	public WrapperPlayServerSpawnEntity() {
@@ -318,16 +307,13 @@ public class WrapperPlayServerSpawnEntity extends AbstractPacket {
 	}
 
 	/**
-	 * Set the type of object. See {@link ObjectTypes}.
-	 * 
-	 * @param value - new value.
+	 * Set the type of object using Bukkit EntityType.
+	 *
+	 * @param type - entity type name (e.g., "ITEM", "ARROW")
 	 */
-	public void setType(String type) throws NoSuchFieldException, ClassNotFoundException, IllegalAccessException {
-		Field k = handle.getHandle().getClass().getDeclaredField("k");
-		Field item = Class.forName("net.minecraft.server.v1_16_R1.EntityTypes").getField(type);
-		Object o = item.get(null);
-		k.setAccessible(true);
-		k.set(handle.getHandle(), o);
+	public void setType(String type) {
+		EntityType entityType = EntityType.valueOf(type);
+		handle.getEntityTypeModifier().write(0, entityType);
 	}
 
 	/**

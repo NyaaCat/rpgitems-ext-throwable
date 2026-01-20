@@ -563,11 +563,7 @@ public class PowerThrowable extends BasePluginPower{
             WrapperPlayServerSpawnEntity spawnArrow = new WrapperPlayServerSpawnEntity(Objects.requireNonNull(packetContainer));
             WrapperPlayServerSpawnEntity spawnEntity = new WrapperPlayServerSpawnEntity();
             spawnEntity.setEntityID(entityId);
-            try {
-                spawnEntity.setType("ITEM");
-            } catch (NoSuchFieldException | ClassNotFoundException | IllegalAccessException e) {
-                e.printStackTrace();
-            }
+            spawnEntity.setType("ITEM");
             spawnEntity.setObjectData(2);
             spawnEntity.setX(spawnArrow.getX());
             spawnEntity.setY(spawnArrow.getY());

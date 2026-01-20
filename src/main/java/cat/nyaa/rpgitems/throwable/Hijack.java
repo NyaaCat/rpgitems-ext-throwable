@@ -86,9 +86,12 @@ public final class Hijack {
         protocolManager.addPacketListener(entityPacketAdapter);
     }
 
-        private static final PacketType[] ENTITY_PACKETS = {
-            ENTITY_EQUIPMENT, BED, ANIMATION, NAMED_ENTITY_SPAWN,
-            COLLECT, SPAWN_ENTITY, SPAWN_ENTITY_LIVING, SPAWN_ENTITY_PAINTING, SPAWN_ENTITY_EXPERIENCE_ORB,
+    // In 1.19+, entity spawn packets were unified into SPAWN_ENTITY
+    // Removed obsolete packets: BED, NAMED_ENTITY_SPAWN, SPAWN_ENTITY_LIVING,
+    // SPAWN_ENTITY_PAINTING, SPAWN_ENTITY_EXPERIENCE_ORB
+    private static final PacketType[] ENTITY_PACKETS = {
+            ENTITY_EQUIPMENT, ANIMATION,
+            COLLECT, SPAWN_ENTITY,
             ENTITY_VELOCITY, REL_ENTITY_MOVE, ENTITY_LOOK, ENTITY_TELEPORT, ENTITY_HEAD_ROTATION, ENTITY_STATUS,
             ATTACH_ENTITY, ENTITY_METADATA, ENTITY_EFFECT, REMOVE_ENTITY_EFFECT, BLOCK_BREAK_ANIMATION
     };

@@ -21,6 +21,7 @@ package cat.nyaa.rpgitems.throwable.lib.wrapper;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
+import com.comphenix.protocol.wrappers.WrappedDataWatcher;
 import com.comphenix.protocol.wrappers.WrappedWatchableObject;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
@@ -44,7 +45,7 @@ public class WrapperPlayServerEntityMetadata extends AbstractPacket {
 	 * Retrieve Entity ID.
 	 * <p>
 	 * Notes: entity's ID
-	 * 
+	 *
 	 * @return The current Entity ID
 	 */
 	public int getEntityID() {
@@ -53,7 +54,7 @@ public class WrapperPlayServerEntityMetadata extends AbstractPacket {
 
 	/**
 	 * Set Entity ID.
-	 * 
+	 *
 	 * @param value - new value.
 	 */
 	public void setEntityID(int value) {
@@ -62,7 +63,7 @@ public class WrapperPlayServerEntityMetadata extends AbstractPacket {
 
 	/**
 	 * Retrieve the entity of the painting that will be spawned.
-	 * 
+	 *
 	 * @param world - the current world of the entity.
 	 * @return The spawned entity.
 	 */
@@ -72,7 +73,7 @@ public class WrapperPlayServerEntityMetadata extends AbstractPacket {
 
 	/**
 	 * Retrieve the entity of the painting that will be spawned.
-	 * 
+	 *
 	 * @param event - the packet event.
 	 * @return The spawned entity.
 	 */
@@ -82,19 +83,66 @@ public class WrapperPlayServerEntityMetadata extends AbstractPacket {
 
 	/**
 	 * Retrieve Metadata.
-	 * 
+	 *
 	 * @return The current Metadata
 	 */
 	public List<WrappedWatchableObject> getMetadata() {
-		return handle.getWatchableCollectionModifier().read(0);
+		try {
+			return handle.getWatchableCollectionModifier().read(0);
+		} catch (Exception ignored) {}
+		return null;
+	}
+
+	/**
+	 * Set Metadata using a WrappedDataWatcher.
+	 * This method automatically handles conversion for modern Minecraft versions.
+	 *
+	 * @param watcher - the data watcher containing metadata values.
+	 */
+	public void setMetadata(WrappedDataWatcher watcher) {
+		// Try modern DataValueCollection API first (1.19.3+)
+		try {
+			if (handle.getDataValueCollectionModifier().size() > 0) {
+				handle.getDataValueCollectionModifier().write(0, watcher.toDataValueCollection());
+				return;
+			}
+		} catch (Exception ignored) {
+			// Fall through to legacy approach
+		}
+
+		// Fall back to legacy WatchableCollection API
+		try {
+			handle.getWatchableCollectionModifier().write(0, watcher.getWatchableObjects());
+		} catch (Exception ignored) {
+			// Ignore if structure differs
+		}
 	}
 
 	/**
 	 * Set Metadata.
-	 * 
+	 *
 	 * @param value - new value.
+	 * @deprecated Use {@link #setMetadata(WrappedDataWatcher)} instead for modern Minecraft versions.
 	 */
+	@Deprecated
 	public void setMetadata(List<WrappedWatchableObject> value) {
-		handle.getWatchableCollectionModifier().write(0, value);
+		// Try modern DataValueCollection API first (1.19.3+)
+		try {
+			if (handle.getDataValueCollectionModifier().size() > 0) {
+				// Convert WrappedWatchableObject list to DataValue collection
+				WrappedDataWatcher watcher = new WrappedDataWatcher(value);
+				handle.getDataValueCollectionModifier().write(0, watcher.toDataValueCollection());
+				return;
+			}
+		} catch (Exception ignored) {
+			// Fall through to legacy approach
+		}
+
+		// Fall back to legacy WatchableCollection API
+		try {
+			handle.getWatchableCollectionModifier().write(0, value);
+		} catch (Exception ignored) {
+			// Ignore if structure differs
+		}
 	}
 }

@@ -21,7 +21,6 @@ repositories {
         name 'Paper'
         url 'https://repo.papermc.io/repository/maven-public/'
     }
-    maven { url "https://repo.dmulloy2.net/nexus/repository/public/" }
     maven { name 'aikar'; url 'https://repo.aikar.co/content/groups/aikar/' }
 }
 
@@ -29,15 +28,34 @@ repositories {
 String majorVersion = 1
 String minorVersion = 0
 String minecraftVersion = "1.21.11"
-String buildNumber = System.getenv("BUILD_NUMBER") == null ? "686936" : System.getenv("BUILD_NUMBER")
+String buildNumber = System.getenv("BUILD_NUMBER") == null ? System.currentTimeMillis().toString() : System.getenv("BUILD_NUMBER")
 
 version = "$majorVersion.$minorVersion-$buildNumber"
+
+// Download ProtocolLib dev-build from GitHub releases (for 1.21.11 support)
+def protocolLibFile = file("$projectDir/libs/ProtocolLib.jar")
+def protocolLibUrl = 'https://github.com/dmulloy2/ProtocolLib/releases/download/dev-build/ProtocolLib.jar'
+
+tasks.register('downloadProtocolLib') {
+    outputs.file(protocolLibFile)
+    doLast {
+        if (!protocolLibFile.exists()) {
+            mkdir protocolLibFile.parentFile
+            ant.get(src: protocolLibUrl, dest: protocolLibFile)
+        }
+    }
+}
+
+tasks.withType(JavaCompile) {
+    dependsOn downloadProtocolLib
+}
 
 dependencies {
     compileOnly('cat.nyaa:nyaacore:9.10')
     compileOnly('cat.nyaa:rpgitems:3.34-SNAPSHOT')
     compileOnly("io.papermc.paper:paper-api:$minecraftVersion-R0.1-SNAPSHOT")
-    compileOnly group: "com.comphenix.protocol", name: "ProtocolLib", version: "5.3.0"
+    // Use dev-build from GitHub for 1.21.11 support
+    compileOnly files('libs/ProtocolLib.jar')
 
     // EvalEx expression evaluator (legacy API compatible)
     implementation 'com.udojava:EvalEx:2.7'

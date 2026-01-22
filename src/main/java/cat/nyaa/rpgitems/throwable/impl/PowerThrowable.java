@@ -553,9 +553,10 @@ public class PowerThrowable extends BasePluginPower{
             WrapperPlayServerEntityMetadata metadata = new WrapperPlayServerEntityMetadata();
             metadata.setEntityID(entityId);
             HashMap<Integer, Object> watcher = new HashMap<>();
-            watcher.put(7, itemStack.clone());
+            // Item entity's item slot is at index 8 in Minecraft 1.17+
+            watcher.put(8, itemStack.clone());
             WrappedDataWatcher dataWatcher = PacketUtils.watcher(watcher);
-            metadata.setMetadata(dataWatcher.getWatchableObjects());
+            metadata.setMetadata(dataWatcher);
             return metadata;
         }
 

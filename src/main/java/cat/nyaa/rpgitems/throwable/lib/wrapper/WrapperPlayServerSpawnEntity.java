@@ -23,10 +23,10 @@ import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.injector.PacketConstructor;
-// IntEnum removed in newer ProtocolLib
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.util.Vector;
 
 import java.util.UUID;
 
@@ -34,6 +34,9 @@ public class WrapperPlayServerSpawnEntity extends AbstractPacket {
 	public static final PacketType TYPE = PacketType.Play.Server.SPAWN_ENTITY;
 
 	private static PacketConstructor entityConstructor;
+
+	// Cached velocity for when packet fields are not directly accessible
+	private Vector cachedVelocity = new Vector(0, 0, 0);
 
 	/**
 	 * Represents the different object types.
@@ -97,7 +100,7 @@ public class WrapperPlayServerSpawnEntity extends AbstractPacket {
 
 	/**
 	 * Retrieve entity ID of the Object.
-	 * 
+	 *
 	 * @return The current EID
 	 */
 	public int getEntityID() {
@@ -106,7 +109,7 @@ public class WrapperPlayServerSpawnEntity extends AbstractPacket {
 
 	/**
 	 * Retrieve the entity that will be spawned.
-	 * 
+	 *
 	 * @param world - the current world of the entity.
 	 * @return The spawned entity.
 	 */
@@ -116,7 +119,7 @@ public class WrapperPlayServerSpawnEntity extends AbstractPacket {
 
 	/**
 	 * Retrieve the entity that will be spawned.
-	 * 
+	 *
 	 * @param event - the packet event.
 	 * @return The spawned entity.
 	 */
@@ -126,7 +129,7 @@ public class WrapperPlayServerSpawnEntity extends AbstractPacket {
 
 	/**
 	 * Set entity ID of the Object.
-	 * 
+	 *
 	 * @param value - new value.
 	 */
 	public void setEntityID(int value) {
@@ -143,9 +146,7 @@ public class WrapperPlayServerSpawnEntity extends AbstractPacket {
 
 	/**
 	 * Retrieve the x position of the object.
-	 * <p>
-	 * Note that the coordinate is rounded off to the nearest 1/32 of a meter.
-	 * 
+	 *
 	 * @return The current X
 	 */
 	public double getX() {
@@ -154,7 +155,7 @@ public class WrapperPlayServerSpawnEntity extends AbstractPacket {
 
 	/**
 	 * Set the x position of the object.
-	 * 
+	 *
 	 * @param value - new value.
 	 */
 	public void setX(double value) {
@@ -163,9 +164,7 @@ public class WrapperPlayServerSpawnEntity extends AbstractPacket {
 
 	/**
 	 * Retrieve the y position of the object.
-	 * <p>
-	 * Note that the coordinate is rounded off to the nearest 1/32 of a meter.
-	 * 
+	 *
 	 * @return The current y
 	 */
 	public double getY() {
@@ -174,7 +173,7 @@ public class WrapperPlayServerSpawnEntity extends AbstractPacket {
 
 	/**
 	 * Set the y position of the object.
-	 * 
+	 *
 	 * @param value - new value.
 	 */
 	public void setY(double value) {
@@ -183,9 +182,7 @@ public class WrapperPlayServerSpawnEntity extends AbstractPacket {
 
 	/**
 	 * Retrieve the z position of the object.
-	 * <p>
-	 * Note that the coordinate is rounded off to the nearest 1/32 of a meter.
-	 * 
+	 *
 	 * @return The current z
 	 */
 	public double getZ() {
@@ -194,7 +191,7 @@ public class WrapperPlayServerSpawnEntity extends AbstractPacket {
 
 	/**
 	 * Set the z position of the object.
-	 * 
+	 *
 	 * @param value - new value.
 	 */
 	public void setZ(double value) {
@@ -203,107 +200,217 @@ public class WrapperPlayServerSpawnEntity extends AbstractPacket {
 
 	/**
 	 * Retrieve the optional speed x.
-	 * <p>
-	 * This is ignored if {@link #getObjectData()} is zero.
-	 * 
+	 *
 	 * @return The optional speed x.
 	 */
 	public double getOptionalSpeedX() {
-		return handle.getIntegers().read(1) / 8000.0D;
+		try {
+			if (handle.getShorts().size() > 0) {
+				return handle.getShorts().read(0) / 8000.0D;
+			}
+		} catch (Exception ignored) {}
+		try {
+			// Legacy: integers at index 1
+			if (handle.getIntegers().size() > 1) {
+				return handle.getIntegers().read(1) / 8000.0D;
+			}
+		} catch (Exception ignored) {}
+		return cachedVelocity.getX();
 	}
 
 	/**
 	 * Set the optional speed x.
-	 * 
+	 *
 	 * @param value - new value.
 	 */
 	public void setOptionalSpeedX(double value) {
-		handle.getIntegers().write(1, (int) (value * 8000.0D));
+		cachedVelocity.setX(value);
+		try {
+			if (handle.getShorts().size() > 0) {
+				handle.getShorts().write(0, (short) (value * 8000.0D));
+				return;
+			}
+		} catch (Exception ignored) {}
+		try {
+			// Legacy: integers at index 1
+			if (handle.getIntegers().size() > 1) {
+				handle.getIntegers().write(1, (int) (value * 8000.0D));
+			}
+		} catch (Exception ignored) {}
 	}
 
 	/**
 	 * Retrieve the optional speed y.
-	 * <p>
-	 * This is ignored if {@link #getObjectData()} is zero.
-	 * 
+	 *
 	 * @return The optional speed y.
 	 */
 	public double getOptionalSpeedY() {
-		return handle.getIntegers().read(2) / 8000.0D;
+		try {
+			if (handle.getShorts().size() > 1) {
+				return handle.getShorts().read(1) / 8000.0D;
+			}
+		} catch (Exception ignored) {}
+		try {
+			// Legacy: integers at index 2
+			if (handle.getIntegers().size() > 2) {
+				return handle.getIntegers().read(2) / 8000.0D;
+			}
+		} catch (Exception ignored) {}
+		return cachedVelocity.getY();
 	}
 
 	/**
 	 * Set the optional speed y.
-	 * 
+	 *
 	 * @param value - new value.
 	 */
 	public void setOptionalSpeedY(double value) {
-		handle.getIntegers().write(2, (int) (value * 8000.0D));
+		cachedVelocity.setY(value);
+		try {
+			if (handle.getShorts().size() > 1) {
+				handle.getShorts().write(1, (short) (value * 8000.0D));
+				return;
+			}
+		} catch (Exception ignored) {}
+		try {
+			// Legacy: integers at index 2
+			if (handle.getIntegers().size() > 2) {
+				handle.getIntegers().write(2, (int) (value * 8000.0D));
+			}
+		} catch (Exception ignored) {}
 	}
 
 	/**
 	 * Retrieve the optional speed z.
-	 * <p>
-	 * This is ignored if {@link #getObjectData()} is zero.
-	 * 
+	 *
 	 * @return The optional speed z.
 	 */
 	public double getOptionalSpeedZ() {
-		return handle.getIntegers().read(3) / 8000.0D;
+		try {
+			if (handle.getShorts().size() > 2) {
+				return handle.getShorts().read(2) / 8000.0D;
+			}
+		} catch (Exception ignored) {}
+		try {
+			// Legacy: integers at index 3
+			if (handle.getIntegers().size() > 3) {
+				return handle.getIntegers().read(3) / 8000.0D;
+			}
+		} catch (Exception ignored) {}
+		return cachedVelocity.getZ();
 	}
 
 	/**
 	 * Set the optional speed z.
-	 * 
+	 *
 	 * @param value - new value.
 	 */
 	public void setOptionalSpeedZ(double value) {
-		handle.getIntegers().write(3, (int) (value * 8000.0D));
+		cachedVelocity.setZ(value);
+		try {
+			if (handle.getShorts().size() > 2) {
+				handle.getShorts().write(2, (short) (value * 8000.0D));
+				return;
+			}
+		} catch (Exception ignored) {}
+		try {
+			// Legacy: integers at index 3
+			if (handle.getIntegers().size() > 3) {
+				handle.getIntegers().write(3, (int) (value * 8000.0D));
+			}
+		} catch (Exception ignored) {}
 	}
 
 	/**
 	 * Retrieve the pitch.
-	 * 
+	 *
 	 * @return The current pitch.
 	 */
 	public float getPitch() {
-		return (handle.getIntegers().read(4) * 360.F) / 256.0F;
+		try {
+			if (handle.getBytes().size() > 0) {
+				return (handle.getBytes().read(0) * 360.F) / 256.0F;
+			}
+		} catch (Exception ignored) {}
+		try {
+			// Legacy: integers at index 4
+			if (handle.getIntegers().size() > 4) {
+				return (handle.getIntegers().read(4) * 360.F) / 256.0F;
+			}
+		} catch (Exception ignored) {}
+		return 0;
 	}
 
 	/**
 	 * Set the pitch.
-	 * 
+	 *
 	 * @param value - new pitch.
 	 */
 	public void setPitch(float value) {
-		handle.getIntegers().write(4, (int) (value * 256.0F / 360.0F));
+		try {
+			if (handle.getBytes().size() > 0) {
+				handle.getBytes().write(0, (byte) (value * 256.0F / 360.0F));
+				return;
+			}
+		} catch (Exception ignored) {}
+		try {
+			// Legacy: integers at index 4
+			if (handle.getIntegers().size() > 4) {
+				handle.getIntegers().write(4, (int) (value * 256.0F / 360.0F));
+			}
+		} catch (Exception ignored) {}
 	}
 
 	/**
 	 * Retrieve the yaw.
-	 * 
+	 *
 	 * @return The current Yaw
 	 */
 	public float getYaw() {
-		return (handle.getIntegers().read(5) * 360.F) / 256.0F;
+		try {
+			if (handle.getBytes().size() > 1) {
+				return (handle.getBytes().read(1) * 360.F) / 256.0F;
+			}
+		} catch (Exception ignored) {}
+		try {
+			// Legacy: integers at index 5
+			if (handle.getIntegers().size() > 5) {
+				return (handle.getIntegers().read(5) * 360.F) / 256.0F;
+			}
+		} catch (Exception ignored) {}
+		return 0;
 	}
 
 	/**
 	 * Set the yaw of the object spawned.
-	 * 
+	 *
 	 * @param value - new yaw.
 	 */
 	public void setYaw(float value) {
-		handle.getIntegers().write(5, (int) (value * 256.0F / 360.0F));
+		try {
+			if (handle.getBytes().size() > 1) {
+				handle.getBytes().write(1, (byte) (value * 256.0F / 360.0F));
+				return;
+			}
+		} catch (Exception ignored) {}
+		try {
+			// Legacy: integers at index 5
+			if (handle.getIntegers().size() > 5) {
+				handle.getIntegers().write(5, (int) (value * 256.0F / 360.0F));
+			}
+		} catch (Exception ignored) {}
 	}
 
 	/**
-	 * Retrieve the type of object. See {@link ObjectTypes}
-	 * 
-	 * @return The current Type
+	 * Retrieve the type of object.
+	 *
+	 * @return The current EntityType
 	 */
-	public int getType() {
-		return handle.getIntegers().read(6);
+	public EntityType getType() {
+		try {
+			return handle.getEntityTypeModifier().read(0);
+		} catch (Exception ignored) {}
+		return EntityType.ITEM;
 	}
 
 	/**
@@ -312,57 +419,36 @@ public class WrapperPlayServerSpawnEntity extends AbstractPacket {
 	 * @param type - entity type name (e.g., "ITEM", "ARROW")
 	 */
 	public void setType(String type) {
-		EntityType entityType = EntityType.valueOf(type);
-		handle.getEntityTypeModifier().write(0, entityType);
+		try {
+			EntityType entityType = EntityType.valueOf(type);
+			handle.getEntityTypeModifier().write(0, entityType);
+		} catch (Exception ignored) {}
 	}
 
 	/**
 	 * Retrieve object data.
-	 * <p>
-	 * The content depends on the object type:
-	 * <table border="1" cellpadding="4">
-	 * <tr>
-	 * <th>Object Type:</th>
-	 * <th>Name:</th>
-	 * <th>Description</th>
-	 * </tr>
-	 * <tr>
-	 * <td>ITEM_FRAME</td>
-	 * <td>Orientation</td>
-	 * <td>0-3: South, West, North, East</td>
-	 * </tr>
-	 * <tr>
-	 * <td>FALLING_BLOCK</td>
-	 * <td>Block Type</td>
-	 * <td>BlockID | (Metadata << 0xC)</td>
-	 * </tr>
-	 * <tr>
-	 * <td>Projectiles</td>
-	 * <td>Entity ID</td>
-	 * <td>The entity ID of the thrower</td>
-	 * </tr>
-	 * <tr>
-	 * <td>Splash Potions</td>
-	 * <td>Data Value</td>
-	 * <td>Potion data value.</td>
-	 * </tr>
-	 * </table>
-	 * 
+	 *
 	 * @return The current object Data
 	 */
 	public int getObjectData() {
-		return handle.getIntegers().read(7);
+		try {
+			if (handle.getIntegers().size() > 1) {
+				return handle.getIntegers().read(1);
+			}
+		} catch (Exception ignored) {}
+		return 0;
 	}
 
 	/**
 	 * Set object Data.
-	 * <p>
-	 * The content depends on the object type. See {@link #getObjectData()} for
-	 * more information.
-	 * 
+	 *
 	 * @param value - new object data.
 	 */
 	public void setObjectData(int value) {
-		handle.getIntegers().write(6, value);
+		try {
+			if (handle.getIntegers().size() > 1) {
+				handle.getIntegers().write(1, value);
+			}
+		} catch (Exception ignored) {}
 	}
 }

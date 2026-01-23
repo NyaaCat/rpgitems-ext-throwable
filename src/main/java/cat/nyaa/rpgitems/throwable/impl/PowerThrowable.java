@@ -522,6 +522,12 @@ public class PowerThrowable extends BasePluginPower{
             projectile.setSilent(true);
             projectile.setPersistent(false);
 
+            // If packet wasn't captured (race condition), skip fake item display
+            if (packetContainer == null) {
+                handleProjectile(projectile.getVelocity(), projectile);
+                return projectile;
+            }
+
             WrapperPlayServerSpawnEntity spawnEntity = getFakeItemStack(entityId, packetContainer);
             WrapperPlayServerEntityMetadata metadata = getFakeMetadata(entityId, orig);
 

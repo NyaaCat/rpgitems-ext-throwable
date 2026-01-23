@@ -24,6 +24,10 @@ repositories {
     maven { name 'aikar'; url 'https://repo.aikar.co/content/groups/aikar/' }
 }
 
+configurations.all {
+    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+}
+
 
 String majorVersion = 1
 String minorVersion = 0
